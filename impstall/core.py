@@ -94,11 +94,14 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 
 	if pipAvail:
 		pipArgs=proxyArgs
+		pipArgs.extend(['install'])
 		pipArgs.extend(pipOpts)
-		pipArgs.extend(['install', pipName])
+		pipArgs.extend([pipName])
 		logger.info(f"Installing {pipName}:{pip}, {' '.join(pipArgs)}")
 
-		_handle = subprocess.Popen([pythonExePath, '-m', 'pip'] + pipArgs)
+		args = [pythonExePath, '-m', 'pip'] + pipArgs
+		logger.info(f"Executing pip: {' '.join(args)}")
+		_handle = subprocess.Popen(args)
 		_handle.wait()
 		# pip.main(pipArgs)
 	else:
@@ -141,7 +144,7 @@ def set_https_proxy(httpsProxy=None):
 def get_https_proxy():
 	return HTTPS_PROXY
 
-def impstall(module, items={}, pipPackage=None):
+def impstall(module, items={}, pipPackage=None, pip_options=[]):
 	'''
 	This is the main function of the module.  It will import `importName` if it can.  If not, it will try to install it.
 
@@ -169,7 +172,7 @@ def impstall(module, items={}, pipPackage=None):
 		if pipPackage is None:
 			pipPackage = baseModule
 		_updateModVarsFromEnv()
-		_installWithPip(pipPackage)
+		_installWithPip(pipPackage, pipOpts=pip_options)
 
 	if len(items) == 0:
 		builtImportString = 'import ' + module
