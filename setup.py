@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''
 '''
+import sys
+
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -21,8 +23,11 @@ licenseRe = re.compile(r'[Ll][Ii][Cc][Ee][Nn][Ss][Ee]')
 with open(path.join(here, 'LICENSE')) as f:
 	licenseNameLine = f.readline().strip()
 	licenseName = licenseRe.sub('', licenseNameLine).strip()
+if sys.version_info >= (3, 0):
+	exec(path.join(here, MODULE_NAME_TO_INSTALL, "version.py"))
 
-execfile(path.join(here, MODULE_NAME_TO_INSTALL, 'version.py'))
+else:
+	execfile(path.join(here, MODULE_NAME_TO_INSTALL, 'version.py'))
 
 tempPackages=find_packages(exclude=['contrib', 'docs', 'tests', 'utils'])
 

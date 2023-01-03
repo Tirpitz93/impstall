@@ -2,6 +2,8 @@
 '''
 This module can be used to import python packages and install them if not already installed.
 '''
+import logging
+logger = logging.getLogger(__name__)
 import os
 import sys
 import subprocess
@@ -72,7 +74,7 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 		proxyArgs.append('--proxy='+HTTPS_PROXY)
 
 	if not pipAvail:
-		print 'Downloading pip installer:', _pipSetupUrl
+		logger.info('Downloading pip installer:', _pipSetupUrl)
 		tmpDir = tempfile.gettempdir()
 		pipSetupFilePath = os.path.join(tmpDir, os.path.basename(_pipSetupUrl))
 		urllib.urlretrieve(_pipSetupUrl, pipSetupFilePath)
@@ -80,7 +82,7 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 		pipSetupArgs = [pythonExePath, pipSetupFilePath]
 		pipSetupArgs.extend(proxyArgs)
 		pipSetupArgs.extend(getPipOpts)
-		print 'Executing pip installer:', ' '.join(pipSetupArgs)
+		logger.info('Executing pip installer:', ' '.join(pipSetupArgs))
 		subprocess.Popen(pipSetupArgs)
 
 		pipAvail = False
@@ -94,11 +96,14 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 		pipArgs=proxyArgs
 		pipArgs.extend(pipOpts)
 		pipArgs.extend(['install', pipName])
-		print 'Installing', pipName + ':', 'pip', ' '.join(pipArgs)
-		pip.main(pipArgs)
+		logger.info(f"Installing {pipName}:{pip}, {' '.join(pipArgs)}")
+
+		_handle = subprocess.Popen([pythonExePath, '-m', 'pip'] + pipArgs)
+		_handle.wait()
+		# pip.main(pipArgs)
 	else:
-		print 'Pip not available...'
-		#Look at pypi repo for installers
+		logger.info('Pip not available...')
+	#Look at pypi repo for installers
 		#Download and use installer if available
 
 def set_pip_options(pipOptions=[]):
