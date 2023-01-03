@@ -2,7 +2,10 @@
 '''
 This module can be used to import python packages and install them if not already installed.
 '''
+import importlib
 import logging
+import site
+
 logger = logging.getLogger(__name__)
 import os
 import sys
@@ -62,7 +65,7 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 	'''
 	pipAvail = False
 	try:
-		import pip as pip
+		import pip._internal.main as pip
 		pipAvail = True
 	except ImportError:
 		pass
@@ -87,7 +90,7 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 
 		pipAvail = False
 		try:
-			import pip as pip
+			import pip
 			pipAvail = True
 		except ImportError:
 			pass
@@ -99,11 +102,11 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 		pipArgs.extend([pipName])
 		logger.info(f"Installing {pipName}:{pip}, {' '.join(pipArgs)}")
 
-		args = [pythonExePath, '-m', 'pip'] + pipArgs
-		logger.info(f"Executing pip: {' '.join(args)}")
-		_handle = subprocess.Popen(args)
-		_handle.wait()
-		# pip.main(pipArgs)
+		# args = [pythonExePath, '-m', 'pip'] + pipArgs
+		# logger.info(f"Executing pip: {' '.join(args)}")
+		# _handle = subprocess.Popen(args)
+		# _handle.wait()
+		pip.main(pipArgs)
 	else:
 		logger.info('Pip not available...')
 	#Look at pypi repo for installers
@@ -158,7 +161,8 @@ def impstall(module, items={}, pipPackage=None, pip_options=[]):
 	This is the name of the module as it would be requested through pip.  If not provided, it is set to `module`
 	:return: N/A
 	'''
-
+	if pipPackage is not  None and pipPackage.startswith('git'):
+		raise Exception('Git install not supported yet')
 	baseModule=module.split('.')[0]
 
 	packageAlreadyInstalled = False
@@ -171,7 +175,6 @@ def impstall(module, items={}, pipPackage=None, pip_options=[]):
 	if not packageAlreadyInstalled:
 		if pipPackage is None:
 			pipPackage = baseModule
-		_updateModVarsFromEnv()
 		_installWithPip(pipPackage, pipOpts=pip_options)
 
 	if len(items) == 0:
@@ -186,5 +189,9 @@ def impstall(module, items={}, pipPackage=None, pip_options=[]):
 			if items[key] is not None and items[key] != '':
 				builtImportString += ' as ' + items[key]
 			tempIdx += 1
+	if "--target" in pip_options:
+		logger.info(f"Target specified so adding dir to site packages, path : {pip_options[pip_options.index('--target') + 1]}")
 
-	exec (builtImportString, sys._getframe(1).f_globals)
+		# sys.path.append(pip_options[pip_options.index("--target")+1])
+		site.addsitedir(pip_options[pip_options.index("--target")+1])
+		importlib.import_module(pipPackage)

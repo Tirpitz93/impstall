@@ -4,7 +4,7 @@
 
 import argparse
 import sys
-import core
+# import core
 
 def checkPyPiReleaseVersions(test=True):
 	#check if version released to pypitest already
