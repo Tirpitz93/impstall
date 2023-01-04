@@ -100,7 +100,7 @@ def _installWithPip(pipName, pythonExePath=eval('PYTHON_EXE_PATH'), getPipOpts=e
 		pipArgs.extend(['install'])
 		pipArgs.extend(pipOpts)
 		pipArgs.extend([pipName])
-		logger.info(f"Installing {pipName}:{pip}, {' '.join(pipArgs)}")
+		logger.info("Installing {}:{}, {}".format(pipName, pip, ' '.join(pipArgs)))
 
 		# args = [pythonExePath, '-m', 'pip'] + pipArgs
 		# logger.info(f"Executing pip: {' '.join(args)}")
@@ -190,7 +190,8 @@ def impstall(module, items={}, pipPackage=None, pip_options=[]):
 				builtImportString += ' as ' + items[key]
 			tempIdx += 1
 	if "--target" in pip_options:
-		logger.info(f"Target specified so adding dir to site packages, path : {pip_options[pip_options.index('--target') + 1]}")
+		logger.info(
+			"Target specified so adding dir to site packages, path : {}".format(pip_options[pip_options.index("--target") + 1]))
 
 		# sys.path.append(pip_options[pip_options.index("--target")+1])
 		site.addsitedir(pip_options[pip_options.index("--target")+1])
