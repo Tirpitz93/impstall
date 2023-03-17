@@ -11,15 +11,15 @@ class TestInstall(unittest.TestCase):
         impstall.now("bson")
         import bson
 
+        impstall.now("unum")
+        import unum
 
     def test_git_install(self):
         impstall.now("git+https://github.com/Tirpitz93/Unum")
         import unum
 
+    def tearDown(self):
 
-
-    def tearDown(self) -> None:
-
-        args = [sys.executable, '-m', 'pip'] +   ['uninstall', '-y', 'bson', 'unum']
+        args = [sys.executable, '-m', 'pip'] + ['uninstall', '-y', 'bson', 'unum']
         _handle = subprocess.Popen(args)
         _handle.wait()
